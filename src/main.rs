@@ -53,6 +53,16 @@ fn main() -> anyhow::Result<()> {
     let mut ar = zip::ZipArchive::new(ar)
         .with_context(|| format!("reading ZIP header from {}", args.archive.display()))?;
 
+    let version = {
+        let mut vent = ar.by_name("VERSION")
+            .context("finding VERSION file in archive")?;
+        let mut version = String::new();
+        vent.read_to_string(&mut version)
+            .context("reading contents of VERSION file")?;
+        version
+    };
+    let version = version.trim();
+
     let image_name = format!("{kind:?}.bin");
     let mut entry = match ar.by_name(&image_name) {
         Err(zip::result::ZipError::FileNotFound) => {
@@ -154,14 +164,18 @@ fn main() -> anyhow::Result<()> {
     }
     let text = std::str::from_utf8(&buffer)
         .context("Output from target was not UTF-8!")?;
-    const EXPECTED_FIRST_WORDS: &str = "\r\n\
+    let expected_first_words = format!(
+        "\r\n\
         \r\n\
         SETUP MODE\r\n\
+        Firmware version: {version}\r\n\
         \r\n\
         Press+hold any keypad button.\r\n\
-        Type ESC here if no more.\r\n";
-    if text != EXPECTED_FIRST_WORDS {
+        Type ESC here if no more.\r\n"
+    );
+    if text != expected_first_words {
         println!("ERROR: target's first transmission unexpected: {text:?}");
+        println!("Expected: {expected_first_words:?}");
         println!("--- BEGIN ESCAPED LINES ---");
         for line in text.lines() {
             println!("{line:?}");
