@@ -24,6 +24,8 @@ struct Flasher {
     archive: PathBuf,
 }
 
+const START_OF_FLASH: u32 = 0x0800_0000; // TODO: this should not be hardcoded.
+
 fn main() -> anyhow::Result<()> {
     let args = Flasher::parse();
 
@@ -96,17 +98,18 @@ fn main() -> anyhow::Result<()> {
 
     println!("Beginning write...");
     let bar = ProgressBar::new(image.len() as u64);
-    let mut addr = 0x0800_0000; // TODO: this should not be hardcoded.
+    let mut addr = START_OF_FLASH;
     for chunk in image.chunks_mut(256) {
         boot.do_write_memory(addr, chunk)?;
         addr += chunk.len() as u32;
         bar.inc(chunk.len() as u64);
     }
     bar.finish();
+
     println!("Verifying...");
     let bar = ProgressBar::new(image.len() as u64);
     let mut buffer = [0; 256];
-    let mut addr = 0x0800_0000; // TODO: this should not be hardcoded.
+    let mut addr = START_OF_FLASH;
     let mut issues = 0;
     for chunk in image.chunks(256) {
         let buf = &mut buffer[..chunk.len()];
@@ -124,6 +127,7 @@ fn main() -> anyhow::Result<()> {
         bar.inc(chunk.len() as u64);
     }
     bar.finish();
+
     if issues != 0 {
         bail!("memory contents failed to match at {issues} addresses.");
     }
@@ -132,7 +136,7 @@ fn main() -> anyhow::Result<()> {
     println!();
     println!("Activating firmware...");
 
-    boot.do_go(0x0800_0000)?;
+    boot.do_go(START_OF_FLASH)?;
 
     let mut port = boot.into_port();
     port.set_parity(Parity::None)?;
