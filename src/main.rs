@@ -6,8 +6,11 @@ use serialport::Parity;
 use stm32_uart_boot::{Boot, Pid, Cmd};
 use indicatif::ProgressBar;
 
+/// Updater for Keypad:GO! firmware.
 #[derive(Parser)]
 struct Flasher {
+    /// Name of serial port to use. Specific to your operating system. Often
+    /// something like `/dev/ttyUSB0` or `COM3`.
     #[clap(short)]
     port: String,
     /// Programming baud rate. Rates up to 115200 work well in practice, but may
@@ -15,12 +18,16 @@ struct Flasher {
     /// have to downshift to 19200 there.
     #[clap(short, default_value_t = 19_200)]
     baud_rate: u32,
-    #[clap(short, long)]
-    verbose: bool,
-    /// Expected output baud rate of target. Must match firmware.
+    /// Expected output baud rate of target. Must match firmware. Probably want
+    /// to leave this the default.
     #[clap(long, default_value_t = 19_200)]
     run_baud_rate: u32,
 
+    /// If set, spams more information to your terminal.
+    #[clap(short, long)]
+    verbose: bool,
+
+    /// Path to the firmware archive (.zip file).
     archive: PathBuf,
 }
 

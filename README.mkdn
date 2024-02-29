@@ -44,5 +44,36 @@ cargo run -p PORT path/to/your/firmware/archive.zip
 It will print some stuff describing the chip it found and indicate progress. On
 success, the final line printed will be `OK`.
 
+## Command line help
+
+You can get a description of current options by running `cargo run -- --help`.
+It will print something like the following (note: this output is probably out of
+date, run the current code for the modern equivalent):
+
+```
+Updater for Keypad:GO! firmware
+
+Usage: keypad-go-updater [OPTIONS] -p <PORT> <ARCHIVE>
+
+Arguments:
+  <ARCHIVE>  Path to the firmware archive (.zip file)
+
+Options:
+  -p <PORT>
+          Name of serial port to use. Specific to your operating system. Often
+          something like `/dev/ttyUSB0` or `COM3`
+  -b <BAUD_RATE>
+          Programming baud rate. Rates up to 115200 work well in practice, but
+          may corrupt the "target's first words" printed after programming since
+          we have to downshift to 19200 there [default: 19200]
+      --run-baud-rate <RUN_BAUD_RATE>
+          Expected output baud rate of target. Must match firmware. Probably want
+          to leave this the default [default: 19200]
+  -v, --verbose
+          If set, spams more information to your terminal
+  -h, --help
+          Print help
+```
+
 [Keypad:GO!]: https://www.tindie.com/products/owl/keypad-go/
 [firmware repository]: https://github.com/cbiffle/keypad-go-firmware/
