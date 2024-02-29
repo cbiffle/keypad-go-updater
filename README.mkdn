@@ -1,0 +1,48 @@
+# Keypad:GO! firmware updater
+
+This is a simple cross-platform program for updating firmware on [Keypad:GO!].
+It is intended to make the update as robust as possible by detecting which board
+variant you have and making sure the firmware matches it.
+
+This is the program I use to flash boards in production.
+
+## About firmware packages
+
+The Keypad:GO! update is distributed as a _firmware package,_ which is a ZIP
+file. The package contains different builds of the firmware for each board
+variant.
+
+You can get a prebuilt firmware package from the [firmware section of the user
+manual](https://cliffle.com/widget/keypad-go-1/#_firmware_and_updating), the
+[releases page on
+GitHub](https://github.com/cbiffle/keypad-go-firmware/releases) or you can build
+your own using the `package.sh` script in the [firmware repository].
+
+## Updating the firmware / running this program
+
+You will need a Rust toolchain installed via `rustup`.
+
+Check out a copy of this repository and open a terminal inside it.
+
+Connect Keypad:GO! to your computer using a TTL serial cable as described in its
+user manual. Your TTL serial cable will show up as a named serial port, but the
+name will depend on your operating system and how many other ports are available
+-- usually something like `/dev/ttyUSB1` or `COM3`. For these instructions,
+we'll call it `PORT`; replace `PORT` below with the correct name for your
+computer.
+
+Press and hold Keypad:GO!'s UPDATE button, and, while holding it, tap the RESET
+button. This will reset Keypad:GO! into firmware update mode. (You can then
+release the UPDATE button.)
+
+Run:
+
+```
+cargo run -p PORT path/to/your/firmware/archive.zip
+```
+
+It will print some stuff describing the chip it found and indicate progress. On
+success, the final line printed will be `OK`.
+
+[Keypad:GO!]: https://www.tindie.com/products/owl/keypad-go/
+[firmware repository]: https://github.com/cbiffle/keypad-go-firmware/
